@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ProjetoLivros.Interfaces;
 using ProjetoLivros.Models;
 using ProjetoLivros.Validators;
+using System.Threading.Tasks;
 
 namespace ProjetoLivros.Controllers
 {
@@ -26,7 +27,7 @@ namespace ProjetoLivros.Controllers
         }
 
         [HttpPost]
-        public IActionResult Cadastrar(Usuario usuario)
+        public IActionResult Cadastrar([FromForm] Usuario usuario, IFormFile? arquivo)
         {
             var validacao = new UsuarioValidator().Validate(usuario);
 
@@ -34,6 +35,24 @@ namespace ProjetoLivros.Controllers
             {
                 var erros = validacao.Errors.Select(e => e.ErrorMessage).ToList();
                 return BadRequest(erros);
+            }
+
+            // Caso o usuário passe uma imagem
+            if(arquivo != null)
+            {
+                var pastaDestino = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+
+                if (!Directory.Exists(pastaDestino))
+                    Directory.CreateDirectory(pastaDestino);
+
+                var caminhoCompleto = Path.Combine(pastaDestino, arquivo.FileName);
+
+                using (var stream = new FileStream(caminhoCompleto, FileMode.Create))
+                {
+                    arquivo.CopyTo(stream);
+                }
+
+                usuario.Imagem = caminhoCompleto;
             }
 
             _repository.Cadastrar(usuario);
