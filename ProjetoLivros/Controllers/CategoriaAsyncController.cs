@@ -44,7 +44,7 @@ namespace ProjetoLivros.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Atualizar(int id, [FromBody] Categoria categoria)
+        public async Task<IActionResult> Atualizar(int id, Categoria categoria)
         {
             var categoriaAtualizada = await _repository.AtualizarAsync(id, categoria);
 

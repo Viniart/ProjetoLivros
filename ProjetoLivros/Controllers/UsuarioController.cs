@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ProjetoLivros.Interfaces;
 using ProjetoLivros.Models;
+using ProjetoLivros.Validators;
 
 namespace ProjetoLivros.Controllers
 {
@@ -27,6 +28,14 @@ namespace ProjetoLivros.Controllers
         [HttpPost]
         public IActionResult Cadastrar(Usuario usuario)
         {
+            var validacao = new UsuarioValidator().Validate(usuario);
+
+            if(!validacao.IsValid)
+            {
+                var erros = validacao.Errors.Select(e => e.ErrorMessage).ToList();
+                return BadRequest(erros);
+            }
+
             _repository.Cadastrar(usuario);
 
             return Created();
